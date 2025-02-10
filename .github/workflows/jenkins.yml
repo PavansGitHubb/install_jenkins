@@ -1,0 +1,29 @@
+name: Install Jenkins
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest  # Change to self-hosted if needed
+    steps:
+      - name: Update and install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jdk wget
+
+      - name: Add Jenkins repository and key
+        run: |
+          wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | sudo tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+      - name: Install Jenkins
+        run: |
+          sudo apt update
+          sudo apt install -y jenkins
+          sudo systemctl enable jenkins
+          sudo systemctl start jenkins
+          sudo systemctl status jenkins --no-pager
